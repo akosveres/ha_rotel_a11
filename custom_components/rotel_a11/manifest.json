@@ -1,0 +1,16 @@
+{
+  "domain": "rotel_a11",
+  "name": "Rotel A11",
+  "documentation": "https://github.com/akosveres/ha_rotel_11",
+  "issue_tracker": "https://github.com/akosveres/ha_rotel_11/issues",
+  "integration_type": "entity",
+  "requirements": [
+    "pyserial"
+  ],
+  "dependencies": [],
+  "codeowners": [
+    "@akosveres"
+  ],
+  "version": "0.1",
+  "iot_class": "local_polling"
+}

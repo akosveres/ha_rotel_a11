@@ -1,44 +1,43 @@
-# Home Assistant Custom Component for controlling Cambridge Audio CXA 61/81 amplifiers
+# Home Assistant Custom Component for controlling Rotel A11 amplifier
 
-For this component to work, you'll need to have a serial connection between your Cambridge CXA amplifier and your Home Assistant instance.
-This can be either a direct serial connection, or you could use a remote device like a Raspberry Pi to provide the serial connection from your CXA to your Home Assistant instance. 
+For this component to work, you'll need to have a serial connection between your Rotel A11 amplifier and your Home Assistant instance.
+This can be either a direct serial connection, or you could use a remote device like a Raspberry Pi to provide the serial connection from your A11 to your Home Assistant instance. 
 
-In case you have a direct serial connection between your Cambridge CXA and Home Assistant, follow the steps below. If you have a Raspberry Pi in between, scroll down to the next section.
+In case you have a direct serial connection between your Rotel A11 and Home Assistant, follow the steps below. If you have a Raspberry Pi in between, scroll down to the next section.
 
 ## Direct serial connection
 
-On your Home Assistant, create a directory called `cambridge_cxa` under the `custom_components` directory, and save the files from this repo in there.
+On your Home Assistant, create a directory called `rotel_a11` under the `custom_components` directory, and save the files from this repo in there.
 
 Then you need to add the following to your `configuration.yaml` file:
 
 ```
 media_player:
-  - platform: cambridge_cxa
+  - platform: rotel_a11
     device: /dev/serial/by-id/<insert id of USB to serial device here>
-    name: CXA
-    type: CXA61 or CXA81
-    slave: <Optional value, if you have a CXN, enter its IP address here, so you can control the CXA's volume through the CXN>
+    name: A11
+    type: A11
 ```
 
-Restart Home Assistant, and see you have a new media_player entity for your CXA.
+Restart Home Assistant, and see you have a new media_player entity for your A11.
 
 
 ## Indirect serial connection
 
-You'll need to install ser2net on the Raspberry Pi where you have the serial connection to your Cambridge CXA, so the serial port can be accessed over the network.
+You'll need to install ser2net on the Raspberry Pi where you have the serial connection to your Rotel A11, so the serial port can be accessed over the network.
 
 Install ser2net: `sudo apt install ser2net`
 
 If you installed ser2net version 3.x, add this to `/etc/ser2net.conf` file on the Raspberry Pi:
 
 ```
-5000:raw:600:/dev/serial/by-id/<insert id of USB to serial device here>:9600 8DATABITS NONE 1STOPBIT
+5000:raw:600:/dev/serial/by-id/<insert id of USB to serial device here>:115200 8DATABITS NONE 1STOPBIT
 ```
 
 If you installed ser2net version 4.x, add this to `/etc/ser2net.yaml` file on the Raspberry Pi:
 
 ```
-connection: &cambridge
+connection: &rotel
     accepter: tcp,5000
     enable: on
     options:
@@ -46,7 +45,7 @@ connection: &cambridge
       telnet-brk-on-sync: true
     connector: serialdev,
               /dev/serial/by-id/<insert id of USB to serial device here>,
-              9600n81,local
+              115200n81,local
 ```
 
 Make sure the ser2net service is enabled and running on your Raspberry Pi. Enter following commands.
@@ -60,11 +59,11 @@ Make sure socat is installed by running `sudo apt install socat`
 Next, create a file `/etc/default/socat.conf` and add the following:
 
 ```
-OPTIONS="pty,link=/dev/ttyCXA,raw,ignoreeof,echo=0 tcp:<IP address of the Raspberry Pi>:5000"
+OPTIONS="pty,link=/dev/ttyA11,raw,ignoreeof,echo=0 tcp:<IP address of the Raspberry Pi>:5000"
 ```
 
 Change the IP address to the IP address of your Raspberry Pi. Leave port to 5000, unless you changed it in the `/etc/ser2net.yaml` file.
-Notice the name of the device `/dev/ttyCXA`. You'll need this later on!
+Notice the name of the device `/dev/ttyA11`. You'll need this later on!
 
 Then you'll need to create a systemd service. Create a file `/etc/init.d/socat` and add this:
 
@@ -169,24 +168,23 @@ Then enable and start the service:
 `sudo systemctl enable socat`
 `sudo systemctl start socat`
 
-On your Home Assistant, create a directory called `cambridge_cxa` under the `custom_components` directory, and save the files from this repo in there.
+On your Home Assistant, create a directory called `rotel_a11` under the `custom_components` directory, and save the files from this repo in there.
 
 Then, add the following to your configuration.yaml file:
 
 ```
 media_player:
-  - platform: cambridge_cxa
-    device: /dev/ttyCXA
-    name: CXA
-    type: CXA61 or CXA81
-    slave: <Optional value, if you have a CXN, enter its IP address here, so you can control the CXA's volume through the CXN>
+  - platform: rotel_a11
+    device: /dev/ttyA11
+    name: A11
+    type: A1161 or A1181
 ```
 
-Restart Home Assistant, and see you have a new media_player entity for your CXA.
+Restart Home Assistant, and see you have a new media_player entity for your A11.
 
-Note: When running Home Assistant in Docker, you need to forward the serial port /dev/ttyCXA to your container as a volume, not a device! So add `-v /dev/ttyCXA:/dev/ttyCXA` to your docker command, or add this to your docker-compose file:
+Note: When running Home Assistant in Docker, you need to forward the serial port /dev/ttyA11 to your container as a volume, not a device! So add `-v /dev/ttyA11:/dev/ttyA11` to your docker command, or add this to your docker-compose file:
 ```
 volumes:
-  - /dev/ttyCXA:/dev/ttyCXA
+  - /dev/ttyA11:/dev/ttyA11
 ```
 
